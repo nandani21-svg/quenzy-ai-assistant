@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Quenzy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f7f7f5;
+    --surface:#ffffff;
+    --border:#e6e4df;
+    --text:#1c1c1a;
+    --text-dim:#7a786f;
+    --accent:#3d6b52;
+    --accent-soft:#e9f1ec;
+    --user-bubble:#1c1c1a;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .app{
+    width: 100%;
+    max-width: 600px;
+    height: min(720px, 88vh);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03), 0 16px 40px -20px rgba(0,0,0,0.15);
+  }
+
+  .header{
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo{
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+    flex-shrink: 0;
+    animation: settle 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes settle{
+    from{ transform: scale(0.4) rotate(-8deg); opacity: 0; }
+    to{ transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+  .header h1{
+    font-size: 15.5px;
+    font-weight: 600;
+    margin: 0;
+  }
+  .header span{
+    display: block;
+    font-size: 12px;
+    color: var(--text-dim);
+    font-weight: 400;
+  }
+
+  .thread{
+    flex: 1;
+    overflow-y: auto;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .empty-state{
+    margin: auto;
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 14px;
+    max-width: 30ch;
+    line-height: 1.6;
+  }
+  .empty-state b{ color: var(--text); display: block; margin-bottom: 4px; font-size: 15px; }
+
+  .msg{
+    max-width: 85%;
+    padding: 11px 15px;
+    border-radius: 14px;
+    font-size: 14.5px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    animation: pop 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.3);
+  }
+  @keyframes pop{
+    from{ opacity: 0; transform: translateY(10px) scale(0.97); }
+    to{ opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .msg.user{
+    align-self: flex-end;
+    background: var(--user-bubble);
+    color: white;
+    border-bottom-right-radius: 4px;
+  }
+  .msg.bot{
+    align-self: flex-start;
+    background: var(--accent-soft);
+    color: var(--text);
+    border-bottom-left-radius: 4px;
+  }
+  .msg.bot.loading{
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 14px 16px;
+  }
+  .typing-dot{
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--text-dim);
+    animation: bounce 1.2s ease-in-out infinite;
+  }
+  .typing-dot:nth-child(2){ animation-delay: 0.15s; }
+  .typing-dot:nth-child(3){ animation-delay: 0.3s; }
+  @keyframes bounce{
+    0%, 60%, 100%{ transform: translateY(0); opacity: 0.5; }
+    30%{ transform: translateY(-5px); opacity: 1; }
+  }
+  .msg.bot.error{
+    background: #fdecec;
+    color: #a13a3a;
+  }
+
+  .composer{
+    padding: 14px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+  }
+  textarea{
+    flex: 1;
+    resize: none;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 11px 14px;
+    font-family: inherit;
+    font-size: 14.5px;
+    color: var(--text);
+    max-height: 120px;
+    line-height: 1.4;
+  }
+  textarea:focus{
+    outline: none;
+    border-color: var(--accent);
+  }
+  button{
+    width: 40px; height: 40px;
+    flex-shrink: 0;
+    border: none;
+    border-radius: 10px;
+    background: var(--accent);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s ease, transform 0.1s ease;
+  }
+  button:hover:not(:disabled){ background: #305a44; transform: scale(1.05); }
+  button:active:not(:disabled){ transform: scale(0.9); }
+  button:disabled{ background: #c7c5bd; cursor: not-allowed; }
+  button svg{ width: 17px; height: 17px; transition: transform 0.15s ease; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="header">
+    <div class="logo">Q</div>
+    <div>
+      <h1>Quenzy</h1>
+      <span>Your AI-powered question box</span>
+    </div>
+  </div>
+
+  <div class="thread" id="thread">
+    <div class="empty-state" id="emptyState">
+      <b>Ask me anything</b>
+      Your question goes straight to a live model on Amazon Bedrock.
+    </div>
+  </div>
+
+  <div class="composer">
+    <textarea id="question" placeholder="Ask a question..." rows="1"></textarea>
+    <button id="askBtn" onclick="askQuestion()" aria-label="Send">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+  const API_URL = "https://5x83p13su4.execute-api.us-east-1.amazonaws.com/default/DoubtSolverFunction";
+
+  const thread = document.getElementById('thread');
+  const input = document.getElementById('question');
+  const askBtn = document.getElementById('askBtn');
+  const emptyState = document.getElementById('emptyState');
+
+  function addMessage(text, role, extraClass) {
+    if (emptyState) emptyState.remove();
+    const div = document.createElement('div');
+    div.className = 'msg ' + role + (extraClass ? ' ' + extraClass : '');
+    div.innerText = text;
+    thread.appendChild(div);
+    thread.scrollTop = thread.scrollHeight;
+    return div;
+  }
+
+  async function askQuestion() {
+    const question = input.value.trim();
+    if (!question) return;
+
+    addMessage(question, 'user');
+    input.value = '';
+    input.style.height = 'auto';
+    askBtn.disabled = true;
+
+    const loadingMsg = addMessage('', 'bot', 'loading');
+    loadingMsg.innerHTML = '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: question })
+      });
+      const data = await response.json();
+      loadingMsg.classList.remove('loading');
+      loadingMsg.innerText = data.answer || "No answer received.";
+    } catch (err) {
+      loadingMsg.classList.remove('loading');
+      loadingMsg.innerText = "Something went wrong: " + err.message;
+      loadingMsg.classList.add('error');
+    } finally {
+      askBtn.disabled = false;
+      input.focus();
+    }
+  }
+
+  input.addEventListener('keydown', function(e){
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      askQuestion();
+    }
+  });
+
+  input.addEventListener('input', function(){
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+  });
+</script>
+
+</body>
+</html>
